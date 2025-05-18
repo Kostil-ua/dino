@@ -4,8 +4,11 @@ from levels import*
 pygame.init()
 
 level1_objects, key, chest = draw_level(level1)
-#player
-#portal
+player = Player(50, H - 90, 40, 50, 10, player_images)
+portal = MapObject(-300, -300, 80, 80, portal_image)
+
+level1_objects.add(portal)
+level1_objects.add(player)
 
 """ Кнопки для меню """
 btn_play = Button(465, 250, 350, 100, (170, 139, 231), "PLAY", 60, (255, 255, 255))
@@ -44,30 +47,43 @@ while game:
 
             for obj in level1_objects:
                 window.blit(obj.image, camera.apply(obj))
-            #camera.update(player)
 
-            #camera.update(platforms)
+            camera.update(player)
 
+            player.update(platforms)
 
+            if pygame.sprite.spritecollide(player, coins, True):
+                coints_count += 1
 
+            window.blit(pygame.transform.scale(coin_image, (40, 40)), (10, 10))
+            coins_txt = font1.render(f": {coints_count}", True, (255, 255, 255))
+            window.blit(coins_txt, (55, 10))
 
-        
+            if portal:
+                if coints_count > 1:
+                    portal.rect.x = 1300
+                    portal.rect.y = 600
+
+                if pygame.sprite.collide_rect(player, portal):
+                    for obj in level1_objects:
+                        obj.kill()
+
+                    for platform in platforms:
+                        platform.kill()
+
+                    del portal
+
+                    portal = None
+
+                    level1_objects, key, chest = draw_level(level2)
+
+                    player.rect.x = 50
+                    player.rect.y = H - 90
+                    level1_objects.add(player)
+
+            if player.rect.y > 650:
+                finish = True
+
 
     pygame.display.update()
     clock.tick(FPS)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
